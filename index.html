@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Pictionary</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      /* Stile für das Pictionary-Brett */
+      #board {
+        background-color: #f0f0f0;
+        position: relative;
+      }
+      #info {
+        margin-left: 10px;
+      }
+      #card {
+        padding: 10px;
+        border: 5px solid #cccccc;
+        border-radius: 10px;
+        display: flex;
+        height: 150px;
+        width: 150px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        justify-content: center;
+        align-content: space-between;
+        flex-wrap: wrap;
+        margin: 10px 0;
+      }
+      #cardInfo {
+        text-align: center;
+      }
+
+      /* Stile für die Spieler */
+      .player {
+        width: 20px;
+        height: 20px;
+        background-color: #eeeeee;
+        border-radius: 50%;
+        box-shadow: 1px 1px 5px;
+      }
+      .cell {
+        border: 1px solid black;
+        position: absolute;
+      }
+      .cellText {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      .cellContent {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        top: 0;
+      }
+      .blur {
+        color: transparent;
+        text-shadow: 0 0 10px #000;
+      }
+    </style>
+    <script></script>
+  </head>
+  <body>
+    <div style="display: flex">
+      <div id="board"></div>
+      <div id="info">
+        <button onclick="game.addPlayer()">Add Player</button>
+        <div id="players"></div>
+        <div style="text-align: center;">
+            <div id="dice" style="margin: 10px 0; text-align: center;"></div>
+            <button onclick="game.movePlayer()">Roll Dice</button>
+        </div>
+        <div>
+          <div class="card" id="card">
+            <div
+              id="word"
+              class="blur"
+              style="padding: 10px; border: 1 solid #ccc"
+            ></div>
+            <div id="cardInfo"></div>
+          </div>
+          <div style="display:flex;justify-content: space-between;">
+            <button onclick="game.showCard(true)">show!</button>
+            <button onclick="game.showCard(false)">hide!</button>
+            </div>
+        </div>
+      </div>
+    </div>
+    <script src="js/board.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+      game.init();
+      game.addPlayer();
+      game.addPlayer();
+      game.addPlayer();
+      game.movePlayer(0);
+    </script>
+  </body>
+</html>
