@@ -7,7 +7,8 @@
   board.style.width = basicCell.size * 13 + 'px'
   board.style.height = basicCell.size * 13 + 'px'
   var info = w.document.createElement('div')
-  info.style.backgroundColor = 'red';
+  info.className = 'popup';
+
 
   var COLORS = [
     'rgb(255 255 0)',
@@ -25,7 +26,7 @@
     name: NAMES[0],
   }];
 
-  function addCell(dir) {
+  function addCell(dir, count=1) {
     var lastCell = cells[cells.length - 1];
     
     var newCell = {
@@ -45,64 +46,31 @@
     } 
 
     cells.push(newCell);
+    if (count > 1) {
+      addCell(dir, count - 1);
+    }
   }
 
-  function init() {
-    addCell('down');
-    addCell('down');
-    addCell('left');
-    addCell('left');
-    addCell('left');
-    addCell('left');
-    addCell('up');
-    addCell('up');
-    addCell('up');
-    addCell('up');
-    addCell('right');
-    addCell('right');
-    addCell('up');
-    addCell('up');
-    addCell('left');
-    addCell('left');
-    addCell('up');
-    addCell('up');
-    addCell('up');
-    addCell('up');
-    addCell('right');
-    addCell('right');
-    addCell('right');
-    addCell('right');
-    addCell('down');
-    addCell('down');
-    addCell('right');
-    addCell('right');
-    addCell('up');
-    addCell('up');
-    addCell('right');
-    addCell('right');
-    addCell('right');
-    addCell('right');
-    addCell('down');
-    addCell('down');
-    addCell('down');
-    addCell('down');
-    addCell('left');
-    addCell('left');
-
-    addCell('down');
-    addCell('down');
-    addCell('right');
-    addCell('right');
-    addCell('down');
-    addCell('down');
-    addCell('down');
-    addCell('down');
-    addCell('left');
-    addCell('left');
-    addCell('left');
-    addCell('left');
-    addCell('up');
-    addCell('up');
+  function create() {
+    addCell('down',2);
+    addCell('left',4);
+    addCell('up',4);
+    addCell('right',2);
+    addCell('up',2);
+    addCell('left',2);
+    addCell('up',4);
+    addCell('right', 4);
+    addCell('down', 2);
+    addCell('right', 2);
+    addCell('up', 2);
+    addCell('right', 4);
+    addCell('down', 4);
+    addCell('left', 2);
+    addCell('down', 2);
+    addCell('right', 2);
+    addCell('down', 4);
+    addCell('left', 4);
+    addCell('up', 2);
   }
 
   function render() {
@@ -132,18 +100,28 @@
   }
   var players = [];
 
-  function addPlayer() {
+  function addPlayer({id, icon, color, atCell, name} = {}) {
     var icons = ["cat", "dog", "fish", "car", "tree", "home", "star", "smile", "heart", "rocket"];
     var colors = ['#58c545', '#f06f38', '#51140b']
     var index = players.length;
     var player = {
-      id: index,
-      atCell: 0,
-      icon: icons[index],
-      color: colors[index % colors.length]
+      id: id || index,
+      atCell: atCell || 0,
+      icon: icon || icons[index],
+      color: color || colors[index % colors.length],
     }
+    player.name = name || player.icon
     var div = w.document.createElement('div');
+
     div.style.zIndex = 1;
+    div.onmouseenter = (e)=>{
+      player.div.appendChild(info);
+      info.innerHTML = player.name;
+      info.style.visibility = 'visible';
+    }
+    div.onmouseleave = (e)=>{
+      info.style.visibility = 'hidden';
+    }
     div.className = 'player';
     div.innerHTML = '<i class="fas fa-' + player.icon + '" style="color: '+ player.color + '"></i>';
     player.div = div;
@@ -169,8 +147,18 @@
   function cellOfPlayer(id) {
     return cells[players[id].atCell];
   }
-  init();
+
+  function reset() {
+    players.forEach(p=>{
+      p.div.parentElement.removeChild(p.div);
+    })
+    players.length = 0;
+  }
+
+  create();
+
   w.pictionaryBoard = {
+    reset,
     render,
     addPlayer,
     movePlayer,

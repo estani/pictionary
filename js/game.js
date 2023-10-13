@@ -1,14 +1,36 @@
 (function (w) {
+  const players = [];
+  const current = {
+    player: 0,
+    word: undefined,
+    dice: undefined
+  }
   var playersDiv = w.document.getElementById("players");
   var diceDiv = w.document.getElementById("dice");
-  function addPlayer() {
-    var player = w.pictionaryBoard.addPlayer();
+  function addPlayer(p = {}) {
+    var player = w.pictionaryBoard.addPlayer(p);
+    players.push(player);
     var div = w.document.createElement("div");
+    const selected = player.id === current.player;
     div.innerHTML = `
-    <input type="radio" id="player${player.id}" name="player" value="${player.id}" onchange="console.log('${player.id}')"/>
-    <label for="player${player.id}"><i class="fas fa-${player.icon}" style="color: ${player.color}"></i></label>
-`;
+    <input type="radio" id="sel_${player.id}" name="player" value="${player.id}" ${selected ? 'checked': ''} />
+    <label for="player${player.id}">
+      <i class="fas fa-${player.icon}" style="color: ${player.color}"></i>
+      <input id="name_${player.id}" value="${player.name}" />
+    </label>
+`;  
     playersDiv.appendChild(div);
+    w.document.getElementById(`sel_${player.id}`).onchange = (e) => {
+      current.player = player.id;
+      save();
+    }
+    const input = w.document.getElementById(`name_${player.id}`);
+    input.checked = 'checked'
+    input.oninput = (e)=>{
+      player.name = e.target.value;
+      save();
+    }
+    save();
   }
 
   function getRandomInt(max) {
@@ -16,26 +38,41 @@
   }
 
   function throwDice(playerId) {
-    var dice = getRandomInt(5) + 1;
-    var newCell = w.pictionaryBoard.movePlayer(playerId, dice);
-    var newWord = getWord(newCell.name);
+    current.dice = getRandomInt(5) + 1;
+    var newCell = w.pictionaryBoard.movePlayer(playerId, current.dice);
+    current.word = getWord(newCell.name);
+    showTurn();
+  }
+
+  function showTurn() {
     showCard(false);
+    if (current.dice) {
+      diceDiv.innerHTML = `<div>You rolled a ${current.dice}!</div>`;
+    } else {
+      diceDiv.innerHTML = '';
+    }
+    const word = w.document.getElementById("word");
+    const cardInfo = w.document.getElementById("cardInfo");
+    const card = w.document.getElementById("card");
 
-    diceDiv.innerHTML = `<div>You rolled a ${dice}!</div>`;
-    var word = w.document.getElementById("word");
-    var cardInfo = w.document.getElementById("cardInfo");
-    var card = w.document.getElementById("card");
-    card.style.borderColor = newCell.color;
-    cardInfo.innerHTML = `
-    <div>
-    <b>${EXPLAIN[newCell.name].name}</b>:
-    <i>${EXPLAIN[newCell.name].description}</i>
-    </div>`;
+    if (current.word) {
+      const cell = w.pictionaryBoard.cellOfPlayer(current.player);
+      card.style.visibility = 'visible';
+      card.style.borderColor = cell.color;
+      cardInfo.innerHTML = `
+      <div>
+      <b>${EXPLAIN[cell.name].name}</b>:
+      <i>${EXPLAIN[cell.name].description}</i>
+      </div>`;
+  
+      word.innerHTML = `
+      <div>(de) ${current.word.de}</div>
+      <div>(en) ${current.word.en}</div>
+      <div>(es) ${current.word.es}</div>`;
+    } else {
+      card.style.visibility = 'hidden';
+    }
 
-    word.innerHTML = `
-    <div>(de) ${newWord.de}</div>
-    <div>(en) ${newWord.en}</div>
-    <div>(es) ${newWord.es}</div>`;
   }
 
   /* optional playerId, otherwise check the selected player */
@@ -51,7 +88,9 @@
     }
 
     throwDice(playerId);
+    save();
   }
+
   var EXPLAIN = {
     A: { name: "Action", description: "An action, a verb." },
     P: { name: "Person/Place", description: "A Person or a place" },
@@ -186,7 +225,6 @@
     if (!wordsOfCat) {
       console.log("using random cat for " + category);
       var allCat = Object.keys(WORDS);
-      console.log(allCat);
       wordsOfCat = WORDS[allCat[getRandomInt(allCat.length)]];
     }
     return wordsOfCat[getRandomInt(wordsOfCat.length)];
@@ -199,6 +237,44 @@
 
   function init() {
     w.pictionaryBoard.render();
+    load();
+
+  }
+
+  function save() {
+    const playersState = players.map(p=>({id:p.id, color: p.color, icon:p.icon, atCell:p.atCell, name: p.name}));
+    w.localStorage.setItem('game', JSON.stringify({
+      playersState, 
+      playerTurn: current.player,
+      lastWord: current.word,
+      lastDice:current.dice}));
+  }
+
+  function load() {
+    const state = w.localStorage.getItem('game');
+    if (state) {
+      const {playersState, playerTurn, lastWord, lastDice} = JSON.parse(state);
+      reset();
+      current.player = playerTurn;
+      current.word = lastWord;
+      current.dice = lastDice;
+      playersState.forEach(p=>{
+        addPlayer(p)
+      });
+      showTurn()
+
+    }
+    
+  }
+
+  function reset() {
+    playersDiv.innerHTML = '';
+    current.word = current.dice = undefined;
+    current.player = 0;
+
+    w.pictionaryBoard.reset();
+    players.length = 0;
+    showTurn();
   }
 
   w.game = {
@@ -206,5 +282,6 @@
     addPlayer,
     movePlayer,
     showCard,
+    reset
   };
 })(window);

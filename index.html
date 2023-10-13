@@ -65,6 +65,18 @@
         color: transparent;
         text-shadow: 0 0 10px #000;
       }
+      .popup {
+        position: absolute;
+        visibility: hidden;
+        z-index: 2;
+        background-color: white;
+        padding: 10px;
+        border: 1px solid black;
+        border-radius: 10px;
+        box-shadow: 2px 2px;
+        top: 20px;
+        left: 20px;
+      }
     </style>
     <script></script>
   </head>
@@ -72,11 +84,12 @@
     <div style="display: flex">
       <div id="board"></div>
       <div id="info">
+        <div id="test"></div>
         <button onclick="game.addPlayer()">Add Player</button>
         <div id="players"></div>
-        <div style="text-align: center;">
-            <div id="dice" style="margin: 10px 0; text-align: center;"></div>
-            <button onclick="game.movePlayer()">Roll Dice</button>
+        <div style="text-align: center">
+          <div id="dice" style="margin: 10px 0; text-align: center"></div>
+          <button onclick="game.movePlayer()">Roll Dice</button>
         </div>
         <div>
           <div class="card" id="card">
@@ -87,10 +100,14 @@
             ></div>
             <div id="cardInfo"></div>
           </div>
-          <div style="display:flex;justify-content: space-between;">
+          <div style="display: flex; justify-content: space-between">
             <button onclick="game.showCard(true)">show!</button>
             <button onclick="game.showCard(false)">hide!</button>
-            </div>
+          </div>
+          <div>
+            <button onclick="game.reset()">new game</button>
+            
+          </div>
         </div>
       </div>
     </div>
@@ -98,10 +115,6 @@
     <script src="js/game.js"></script>
     <script>
       game.init();
-    //   game.addPlayer();
-    //   game.addPlayer();
-    //   game.addPlayer();
-    //   game.movePlayer(0);
     </script>
   </body>
 </html>
