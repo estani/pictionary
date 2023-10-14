@@ -19,12 +19,7 @@
   ]
   var NAMES = ["P","O","A","D","TJ"];
 
-  var cells = [{
-    left: basicCell.size * 5,
-    top: basicCell.size * 9,
-    color: COLORS[0],
-    name: NAMES[0],
-  }];
+  var cells = [];
 
   function addCell(dir, count=1) {
     var lastCell = cells[cells.length - 1];
@@ -51,26 +46,45 @@
     }
   }
 
-  function create() {
-    addCell('down',2);
-    addCell('left',4);
-    addCell('up',4);
-    addCell('right',2);
-    addCell('up',2);
-    addCell('left',2);
-    addCell('up',4);
-    addCell('right', 4);
-    addCell('down', 2);
-    addCell('right', 2);
-    addCell('up', 2);
-    addCell('right', 4);
-    addCell('down', 4);
-    addCell('left', 2);
-    addCell('down', 2);
-    addCell('right', 2);
-    addCell('down', 4);
-    addCell('left', 4);
-    addCell('up', 2);
+  const DOWN = 'down';
+  const UP = 'up';
+  const LEFT = 'left';
+  const RIGHT = 'right';
+  
+  const BOARDS = {
+    original: {
+      firstCell: {left: 5, top: 9},
+      cells: [
+      [DOWN, 2], [LEFT, 4], [UP, 4], [RIGHT, 2], [UP, 2],
+      [LEFT, 2], [UP, 4], [RIGHT, 4], [DOWN, 2], [RIGHT, 2],
+      [UP, 2], [RIGHT, 4], [DOWN, 4], [LEFT, 2], [DOWN, 2],
+      [RIGHT, 2], [DOWN, 4], [LEFT, 4], [UP, 2]
+    ]},
+    snake:{
+      firstCell: {left: 1, top: 1},
+      cells: [
+        [RIGHT, 10], [DOWN, 2], 
+        [LEFT, 10], [DOWN, 2],
+        [RIGHT, 10], [DOWN, 2], 
+        [LEFT, 10], [DOWN, 2],
+        [RIGHT, 6]
+      ]
+    }
+  }
+
+  function create(type = 'original') {
+    const board = BOARDS[type];
+    if (!board) throw new Error(`Do not know how to create board ${type}`);
+
+    const firstCell = {
+      left: basicCell.size * board.firstCell.left,
+      top: basicCell.size * board.firstCell.top,
+      color: COLORS[0],
+      name: NAMES[0],
+    }
+    cells.push(firstCell);
+    board.cells.forEach(([dir, count])=>addCell(dir, count));
+
   }
 
   function render() {
