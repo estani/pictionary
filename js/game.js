@@ -1,8 +1,14 @@
 (function (w) {
+  const rules = {
+    usePointCards: true,
+    pointCardInNCards: 7,
+    lang: 'es'
+  }
   const players = [];
   const current = {
     player: 0,
     word: undefined,
+    wordHasPoint: false,
     dice: undefined
   }
   var playersDiv = w.document.getElementById("players");
@@ -40,7 +46,7 @@
   function throwDice(playerId) {
     current.dice = getRandomInt(5) + 1;
     var newCell = w.pictionaryBoard.movePlayer(playerId, current.dice);
-    current.word = getWord(newCell.name);
+    getWord(newCell.name);
     showTurn();
   }
 
@@ -56,6 +62,12 @@
     const card = w.document.getElementById("card");
 
     if (current.word) {
+      let point = '';
+      let pointInfo = '';
+      if (current.wordHasPoint){
+        point = '&#10687 '
+        pointInfo = '<div style="margin-top:5px;font-size:60%">This card has &#10687, all players can guess. If an oponent wins, you lose the turn.</div>'
+      }
       const cell = w.pictionaryBoard.cellOfPlayer(current.player);
       card.style.visibility = 'visible';
       card.style.borderColor = cell.color;
@@ -63,12 +75,11 @@
       <div>
       <b>${EXPLAIN[cell.name].name}</b>:
       <i>${EXPLAIN[cell.name].description}</i>
+      ${pointInfo}
       </div>`;
   
       word.innerHTML = `
-      <div>(de) ${current.word.de}</div>
-      <div>(en) ${current.word.en}</div>
-      <div>(es) ${current.word.es}</div>`;
+      <div>(${rules.lang}) ${point}${current.word[rules.lang]}</div>`;
     } else {
       card.style.visibility = 'hidden';
     }
@@ -213,6 +224,8 @@
 
   function getWord(category) {
     var wordsOfCat;
+    current.wordHasPoint = false;
+
     if (category == "O") {
       wordsOfCat = WORDS.Object;
     } else if (category == "A") {
@@ -223,11 +236,16 @@
       wordsOfCat = getRandomInt(2) > 0 ? WORDS.Professions : WORDS.Places;
     }
     if (!wordsOfCat) {
-      console.log("using random cat for " + category);
+      // only TJ here
+      //console.log("using random cat for " + category);
       var allCat = Object.keys(WORDS);
       wordsOfCat = WORDS[allCat[getRandomInt(allCat.length)]];
+      current.wordHasPoint = false;
+    } else {
+      // 1 in N have point
+      current.wordHasPoint = getRandomInt(rules.pointCardInNCards) == 0;
     }
-    return wordsOfCat[getRandomInt(wordsOfCat.length)];
+    current.word = wordsOfCat[getRandomInt(wordsOfCat.length)];
   }
 
   function showCard(show = true) {
